@@ -69,7 +69,7 @@ jobs:
   terraform:  
     name: terraform plan
     needs: checkov
-    runs-on: unbutu-latest
+    runs-on: ubuntu-latest
     steps: 
       - name: terraform init
         run: terraform init
