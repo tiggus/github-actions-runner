@@ -14,3 +14,15 @@ jobs:
         shell: bash
         env:
           RANDOM_NUMBER: ${{ steps.connectivity.outputs.random-number }}
+  
+  checkov: 
+    runs-on: ubuntu-latest
+    name: checkov
+    steps:
+      # - uses: actions/checkout@v4
+      # - id: connectivity
+      #   uses: tiggus/github-actions/connectivity@main
+      #   with:
+      #     test-string: 'connectivity test'
+      - run: echo ping
+        shell: bash

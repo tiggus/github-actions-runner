@@ -1,0 +1,96 @@
+name: infrastructure
+
+on:
+  push:
+    branches:
+  pull_request:
+    branches: main
+jobs:
+
+  checkov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+      - name: checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: terraform 
+          soft_fail: true
+
+  infracost:
+    name: infracost
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: setup infracost
+        uses: infracost/actions/setup@v3
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          ref: '${{ github.event.pull_request.base.ref }}'
+      - name: cost estimate baseline
+        run: |
+          infracost breakdown --path=. \
+                              --format=json \
+                              --out-file=/tmp/infracost-base.json
+      - name: checkout pr branch
+        uses: actions/checkout@v4
+      - name: generate diff
+        run: |
+          infracost diff --path=. \
+                          --format=json \
+                          --compare-to=/tmp/infracost-base.json \
+                          --out-file=/tmp/infracost.json
+
+      - name: console output
+        run: |
+          infracost breakdown --path=.
+          infracost diff --path=. --compare-to=/tmp/infracost-base.json
+
+      - name: post comment
+        if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize')
+        run: |
+            infracost comment github --path=/tmp/infracost.json \
+                                     --repo=$GITHUB_REPOSITORY \
+                                     --github-token=${{ github.token }} \
+                                     --pull-request=${{ github.event.pull_request.number }} \
+                                     --behavior=update
+
+  # wiz:
+  #   name: wiz
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     SCAN_PATH: "." # Set the relative path in the repo to scan
+  #     POLICY: "Default IaC policy" # Set the desired Wiz CLI policy to use
+
+  #   # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - uses: actions/checkout@v4
+
+  #   - name: download cli
+  #     run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
+
+  #   - name: authenticate
+  #     run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+  #     env:
+  #       WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+  #       WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+  #   - name: scan
+  #     run: |
+  #       ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" --name "github::${GITHUB_REPOSITORY}/${GITHUB_REF_NAME}"
+  #       ./wizcli dir scan --path "$SCAN_PATH" --policy "$POLICY" --name "github::${GITHUB_REPOSITORY}/${GITHUB_REF_NAME}"
