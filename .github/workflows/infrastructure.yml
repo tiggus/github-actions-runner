@@ -8,6 +8,7 @@ on:
 jobs:
 
   checkov:
+    name: checkov
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -66,7 +67,8 @@ jobs:
                                      --behavior=update
 
   terraform:  
-    name: terraform
+    name: terraform plan
+    needs: checkov
     runs-on: unbutu-latest
     steps: 
       - name: terraform init
