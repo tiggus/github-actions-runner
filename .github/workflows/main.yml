@@ -9,8 +9,8 @@ jobs:
       - id: connectivity
         uses: tiggus/github-actions/connectivity@main
         with:
-          who-to-greet: 'connectivity test'
+          test-string: 'connectivity test'
       - run: echo random-number "$RANDOM_NUMBER"
         shell: bash
         env:
-          RANDOM_NUMBER: ${{ steps.foconnectivity.outputs.random-number }}
+          RANDOM_NUMBER: ${{ steps.connectivity.outputs.random-number }}
