@@ -1,4 +1,5 @@
-on: [push]
+name: actions
+on:
 
 jobs:
   hello_world_job:
