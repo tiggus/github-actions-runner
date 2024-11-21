@@ -65,6 +65,19 @@ jobs:
                                      --pull-request=${{ github.event.pull_request.number }} \
                                      --behavior=update
 
+  terraform:  
+    name: terraform
+    runs-on: unbutu-latest
+    steps: 
+      - name: terraform init
+        run: terraform init
+      
+      - name: terraform plan
+        run: terraform plan
+
+
+      
+
   # wiz:
   #   name: wiz
   #   runs-on: ubuntu-latest
