@@ -1,0 +1,1 @@
+unset pager from LESS (echo $PAGER)

@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: connectivity
-        uses: tiggus/github-actions/connectivity@main
+        uses: tiggus/github-actions/connectivity@v2
         with:
           test-string: 'connectivity test'
       - run: echo random-number "$RANDOM_NUMBER"
