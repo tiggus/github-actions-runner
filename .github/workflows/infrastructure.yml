@@ -66,16 +66,19 @@ jobs:
                                      --pull-request=${{ github.event.pull_request.number }} \
                                      --behavior=update
 
-  terraform:  
-    name: terraform plan
-    needs: checkov
-    runs-on: ubuntu-latest
-    steps: 
-      - name: terraform init
-        run: terraform init
+  # terraform:  
+  #   permissions:
+  #     id-token: write # This is required for requesting the JWT
+  #     contents: read  # This is required for actions/checkout
+  #   name: terraform plan
+  #   needs: checkov
+  #   runs-on: ubuntu-latest
+  #   steps: 
+  #     - name: terraform init
+  #       run: terraform init
       
-      - name: terraform plan
-        run: terraform plan
+  #     - name: terraform plan
+  #       run: terraform plan
 
 
       

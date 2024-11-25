@@ -10,15 +10,26 @@ repo="monument-technology/infrastructure"
 export ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 echo $ACCOUNT
 
+
 if [[ "$account" == "$ACCOUNT" ]] 
-then
-  echo "--- creating s3 bucket ---"
-  aws s3api create-bucket \
-    --bucket "terraform-$account" \
-    --region $region \
-    --create-bucket-configuration LocationConstraint=$region
+    then
+    # https://stackoverflow.com/questions/31077593/how-do-i-use-shell-script-to-check-if-a-bucket-exists
+    # https://stackoverflow.com/questions/15327973/how-does-nested-if-then-elseif-work-in-bash
+    echo "--- checking bucket ---"
+    if [[ $(aws s3api list-buckets | grep "terraform-$account" 2>&1) ]]
+        then
+        echo "--- bucket exists --- "
+    # this else _without_ any ambiguity binds to the if directly above as there was
+    # no fi closing the inner block
+    else
+        echo "--- creating bucket ---"
+            aws s3api create-bucket \
+                --bucket "terraform-$account" \
+                --region $region \
+                --create-bucket-configuration LocationConstraint=$region
+   fi
 else
-  echo "error: account mismatch" >&2
+   echo "error: account mismatch" >&2
 fi
 
 
