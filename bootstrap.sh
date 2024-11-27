@@ -89,3 +89,7 @@ aws iam create-role \
 aws iam attach-role-policy \
     --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess \
     --role-name $provider-oidc
+
+
+
+
